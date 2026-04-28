@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qgene"
+version = "1.0.0"
+description = "Genetic algorithm optimisation module with specific implementations for quantum networks"
+authors = [{name="Matthew Mackinnon"}]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "tqdm>=4.67"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
