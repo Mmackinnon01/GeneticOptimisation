@@ -1,7 +1,7 @@
 import pytest
 
 from qgene.individual import Individual
-from qgene.operators.crossover import TestCrossover
+from qgene.operators.crossover import TestCrossover, UniformCrossover
 
 
 @pytest.fixture
@@ -17,3 +17,8 @@ def parentB():
 def test_crossover_compatible_parents(parentA, parentB):
     child = TestCrossover()(parents=[parentA, parentB])
     assert child.genome == (1, 0, 3, 0)
+
+
+def test_uniform_crossover(parentA, parentB):
+    child = UniformCrossover()([parentA, parentB])
+    assert child.n_genes == parentA.n_genes

@@ -1,7 +1,8 @@
+import numpy as np
 import pytest
 
 from qgene.individual import Individual
-from qgene.selection.base import TestSelection
+from qgene.selection.base import TestSelection, UniformSelection
 
 
 @pytest.fixture
@@ -20,3 +21,8 @@ def test_selection(population):
         [Individual((0, 1, 0, 0)), Individual((0, 10, 0, 0))],
         [Individual((0, 1, 0, 0)), Individual((0, 10, 0, 0))],
     ]
+
+
+def test_uniform_selection(population):
+    selection = UniformSelection(0.5)(population, 50)
+    assert set(np.array(selection).flatten()) == set([population[1], population[2]])

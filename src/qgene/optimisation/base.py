@@ -1,6 +1,9 @@
 import copy
 from typing import Callable
 
+import numpy as np
+from tqdm.auto import tqdm
+
 from qgene.individual.base import Individual
 from qgene.operators.crossover import CrossoverProtocol
 from qgene.operators.mutation import MutationProtocol
@@ -48,21 +51,26 @@ class GeneticOptimiser:
     def iterate(self):
         new_pop = copy.deepcopy(self.pop[: int(len(self.pop) * self.retention)])
         new_pop += [
-            self.crossover(parents)
+            self.mutate(self.crossover(parents))
             for parents in self.selection(self.pop, len(self.pop) - len(new_pop))
         ]
-        self.pop = [self.mutate(i) for i in new_pop]
+        self.pop = new_pop
         self.score(self.pop)
         for callback in self.callbacks:
             callback(self.pop)
 
     def optimise(self, max_iter=100, early_stopping=False):
-        iter = 1
         optimal_score = self.optimal_individual.score
         early_stopping_counter = 0
-        while iter <= max_iter:
+        iters = range(max_iter)
+        if self.verbose == 1:
+            iters = tqdm(iters)
+            self.annotatePBar(iters)
+        for iteration in iters:
             self.iterate()
-            if optimal_score <= self.optimal_individual.score:
+            if self.verbose == 1:
+                self.annotatePBar(iters)
+            if optimal_score >= self.optimal_individual.score:
                 early_stopping_counter += 1
                 if early_stopping and early_stopping_counter == 10:
                     if self.verbose == 1:
@@ -71,3 +79,14 @@ class GeneticOptimiser:
             else:
                 early_stopping_counter = 0
                 optimal_score = self.optimal_individual.score
+
+    def annotatePBar(self, pbar: tqdm) -> None:
+        fitnesses = np.array([ind.score for ind in self.pop])
+        best = self.optimal_individual.score
+        mean = np.mean(fitnesses)
+
+        genomes = np.array([ind.genome for ind in self.pop])
+        diversity = np.mean(np.std(genomes, axis=0))
+        pbar.set_description(
+                f"Best: {best:.4f} | Mean: {mean:.4f} | Div: {diversity:.4f}"
+            )

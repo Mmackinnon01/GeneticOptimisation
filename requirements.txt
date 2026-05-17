@@ -1,0 +1,4 @@
+numpy==2.4.4
+-e git+https://github.com/Mmackinnon01/GeneticOptimisation.git@3b424ad14261878be77bf755ad4fb9674aead40b#egg=qgene
+scipy==1.17.1
+tqdm==4.67.3
