@@ -31,26 +31,29 @@ class DiscreteMutation(MutationProtocol):
 
 class ContinuousMutation(MutationProtocol):
 
-    def __init__(self, sd: float, lower = None, upper = None):
+    def __init__(self, sd: float, lowers = None, uppers = None):
         self.sd = sd
 
-        if lower is None:
-            lower = -10**10
-        if upper is None:
-            upper = 10**10
+        if lowers is None:
+            lowers = -10**10
+        if uppers is None:
+            uppers = 10**10
 
-        self.lower = lower
-        self.upper = upper
+        self.lowers = lowers
+        self.uppers = uppers
 
     def __call__(self, target: Individual) -> Individual:
-            return Individual(tuple(self.mutate(gene) for i, gene in enumerate(target.genome)))
+            return Individual(tuple(self.mutate(gene, i) for i, gene in enumerate(target.genome)))
 
-    def mutate(self, gene: Any):
+    def mutate(self, gene: Any, index: int):
         new_gene = gene + np.random.normal(0, self.sd)
 
-        while new_gene < self.lower or new_gene > self.upper:
-            if new_gene < self.lower:
-                new_gene = self.lower + np.abs(self.lower - new_gene)
-            elif new_gene > self.upper:
-                new_gene = self.upper - np.abs(self.upper - new_gene)
+        lower = self.lowers[index]
+        upper = self.uppers[index]
+
+        while new_gene < lower or new_gene > upper:
+            if new_gene < lower:
+                new_gene = lower + np.abs(lower - new_gene)
+            elif new_gene > upper:
+                new_gene = upper - np.abs(upper - new_gene)
         return new_gene
